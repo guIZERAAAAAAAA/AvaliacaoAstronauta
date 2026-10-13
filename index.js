@@ -1,8 +1,12 @@
 import app from './app.js'
 
+
+
+const porta = 3000;
+
 app.listen(
-    3000,
+    porta,
     () => console.log(
-      "Servidor rodando na porta 3000"
+        'servidor rodando na porta 3000'
     )
 );

@@ -1,181 +1,110 @@
+import express from 'express'
+import swaggerUi from 'swagger-ui-express'
+import swaggerSpec from './swagger.js'
+import cors from 'cors'
 
-import express from "express";
-import cors from 'cors';
 const app = express();
-app.use(express.json());
-app.use(cors());
 
-import swaggerUi from "swagger-ui-express";
-import swaggerSpec from "./swagger.js";
+app.use(cors());
+app.use(express.json());
+
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-const sistemaFoguete = [
-    {
 
-        "id": 1,
-        "nome": "Apollo 11",
-        "ano": 1969,
-        "agencia": "NASA",
-        "status": "Concluida"
-    },
-
-
-    {
-        "id": 2,
-        "nome": "Voyager 1",
-        "ano": 1977,
-        "agencia": "NASA",
-        "status": "Em operação"
-    },
-    {
-        "id": 3,
-        "nome": "Artemis II",
-        "ano": 2026,
-        "agencia": "NASA",
-        "status": "Planejada"
-    }
+const missoes = [
+{
+    id: 1 , 
+    nome: "Apollo 11",
+    ano: 1969,
+    agencia: "NASA"
+},
+{
+    id: 1 , 
+    nome: "Voyager",
+    ano: 1977,
+    agencia: "NASA"
+},
 ]
-//autor ano virou ano
-//titulo virou nome 
-/**
- * @openapi
- * /foguete:
- *   get:
- *     summary: Lista foguete
- *     description: Retorna a lista de foguetes, com filtro opcional por nome
+
+
+/** 
+ *@openapi
+ * /missoes/{id}:
+ *   get: 
+ *     summary: Buscar missao por um missao pelo id 
  *     parameters:
- *       - in: query
- *         name: nome 
- *         required: false
- *         schema:
- *           type: string
- *         description: Filtra os livros pelo título
+ *       - in: path 
+ *         name: id 
+ *         required: true 
+ *         schema :
+ *           type: integer 
  *     responses:
- *       200:
- *         description: Lista de livros retornada com sucesso
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   titulo:
- *                     type: string
- *                   autor:
- *                     type: string
- *                   status:
- *                     type: boolean
- */
-
-app.get('/missoes', (req, res) =>{
-    const titulo = req.query?.titulo || null
-    let spacoFiltrados = null
-    if(titulo !== null){
-      spacoFiltrados = foguete.filter(item => item.titulo.toLowerCase() // vai ter que mudar no test o livo pra outra coisa
-                                                    .includes(titulo.toLowerCase()));
-    }
-
-    spacoFiltrados = spacoFiltrados ?? foguete;
-    res.status(200).json(spacoFiltrados);
-});
-
-/**
- * @openapi
- * /foguetes/{id}:
- *   get:
- *     summary: Busca um fo pelo id
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: foguete encontrado
+ *       204:
+ *         description : buscado com sucesso 
  *       404:
- *         description: foguete não encontrado
- */
-app.get('/missoes/:id', (req, res) =>{
-    const id = Number(req.params?.id);
-
-    const spaco = foguete.find(item => item.id === id);
-
-    if(!foguete){
-        return res.status(404).json({error: "Foguete não encontrado"})
+ *         description: Não encontrado
+*/
+app.get('/missoes/:id', (req, res) => {
+    const missao = missoes.find(p => p.id === Number(req.params.id));
+    if (!missao) {
+        return res.status(404).json({ error: 'missao não encontrada' });
     }
+    res.status(200).json(missao);
+})
 
-    res.status(200).json(foguete);
-
-});
-
-//autor ano virou ano
-//titulo virou nome 
-/**
- * @openapi
- * /foguete:
- *   post:
- *     summary: Cria um novo foguete
+/** 
+ *@openapi
+ * /missoes:
+ *   post: 
+ *     summary: Criado uma nova
  *     requestBody:
- *       required: true
- *       content:
+ *       required: true 
+ *       contente:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
+ *             type: object 
+ *             required: 
  *               - nome
+ *               - agencia 
  *               - ano
  *             properties:
- *               nome:
+ *               nome: 
+ *                 type: string 
+ *               agencia:
  *                 type: string
  *               ano:
- *                 type: string
- *               disponivel:
- *                 type: boolean
- *                 example: true
+ *                 type: integer
  *     responses:
  *       201:
- *         description: Livro criado com sucesso
+ *         description : missao criada
  *       400:
- *         description: Dados inválidos
- */
-app.post('/missoes', (req, res)=>{
-
-    const nome = req.body?.nome || null;
-    const ano = req.body?.ano || null;
-
-      if(!nome){
-        return res.status(400).json({error: "nome é obrigatório"})
-      }
-
-      if(!ano){
-        return res.status(400).json({error: "ano é obrigatório"})
-
-      }
-
-        const novoFoguete = { // troquei o livro aqui tambem 
-            id: foguete.length + 1,
-            nome : nome,
-            ano : ano,
-            agencia : "", 
-            status: req.body?.disponivel || false
-        }
-
-        foguete.push(novoFoguete);
-
-        res.status(201).json(novoFoguete);
-
+ *         description: Missoes não criada
+*/
+app.post('/missoes', (req, res) => {
+    const nome = req?.body?.nome || null
+    const agencia = req?.body?.agencia || null
+    const ano = req?.body?.ano || null
+    if (!agencia) {
+        res.status(400).json({ error: ' agencia é obrigatorio ' })
+    }
+    if (!nome) {
+        res.status(400).json({ error: ' nome  é obrigatorio ' })
+    }
+     if (!ano) {
+        res.status(400).json({ error: ' ano é obrigatorio ' })
+    }
+    const novoMissoes = {
+        id: missoes.length + 1, nome: nome, agencia: agencia
+    };
+    missoes.push(novoMissoes);
+    res.status(201).json(novoMissoes)
 });
-//autor ano virou ano
-//titulo virou nome 
+
 /**
  * @openapi
- * /foguete/{id}:
+ * /missoes/{id}:
  *   put:
- *     summary: Atualiza um foguete pelo id
+ *     summary: Atualiza uma missao pelo id
  *     parameters:
  *       - in: path
  *         name: id
@@ -191,48 +120,45 @@ app.post('/missoes', (req, res)=>{
  *             properties:
  *               nome:
  *                 type: string
- *                 example: Memórias Póstumas de Brás Cubas
- *               ano:
+ *                 example: Apollo 11
+ *               agencia:
  *                 type: string
- *                 example: Machado de Assis
- *               disponivel:
- *                 type: boolean
- *                 example: false
+ *                 example: NASA
+ *               ano:
+ *                 type: integer
+ *                 example: 1969
  *     responses:
  *       200:
- *         description: Livro atualizado com sucesso
+ *         description: Missao atualizada com sucesso
  *       404:
- *         description: Livro não encontrado
+ *         description: Missao não encontrada
  */
 app.put('/missoes/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const spaco = spaco.find(item => item.id === id);
-    if(!livro){
-        return res.status(404).json({error: "foguete não encontrado"})
-    }
+    const missao = missoes.find(p => p.id === Number(req.params.id));
+    if (!missao) {
+        return res.status(404).json({ error: "missao não encontrada" });
+    };
 
-    if(req?.body?.nome && req.body.nome !== ""){
-       spaco.nome = req.body.nome;
-    }
+    if (req?.body.nome && req.body.nome != "") {
+        missao.nome = req.body.nome;
+    };
 
-    if(req?.body?.ano && req.body.ano !== ""){
-       spaco.ano = req.body.ano;
-    }
 
-    if(req?.body?.agencia && req.body.agencia !== ""){
-        spaco.agencia = req.body.agencia;
-    }  
+    if (req?.body.agencia && req.body.agencia != "") {
+        missao.agencia = req.body.agencia;
+    };
 
-    if(req?.body?.status && req.body.status !== ""){
-        spaco.status = req.body.status;
-    }
+    if (req?.body.ano && req.body.ano != "") {
+        missao.ano = req.body.ano;
+    };
 
-    res.status(200).json(foguete)
-});
+    res.status(200).json(missao);
+})
+
 
 /**
  * @openapi
- * /foguete/{id}:
+ * /missoes/{id}:
  *   delete:
  *     summary: Exclui um livro pelo id
  *     parameters:
@@ -243,55 +169,26 @@ app.put('/missoes/:id', (req, res) => {
  *           type: integer
  *     responses:
  *       204:
- *         description: foguete excluido com sucesso
+ *         description: Missoes excluida com sucesso
  *       404:
- *         description: foguete não encontrado
+ *         description: Missoes não encontrado
  */
 app.delete('/missoes/:id', (req, res) =>{
     const id = Number(req.params.id);
-    const indice = foguete.findIndex(item => item.id === id)
+    const indice = missoes.findIndex(item => item.id === id)
 
     if(indice === -1){
-        return res.status(404).json({ error: "foguete não encontrado" })
+        return res.status(404).json({ error: "Missao não encontrada" })
     }
 
-    foguete.splice(indice, 1);
+    missoes.splice(indice, 1);
 
     res.status(204).send('')
 
 });
 
 
-app.get('/previsao', async (req, res) => {
-  const { lat, lon } = req.query;
-  const url = ``; // url de algaum acoisa 
-
-  try {
-    const resposta = await fetch(url);
-    const dados = await resposta.json();
-    res.status(200).json(dados.current_weather);
-  } catch (erro) {
-    res.status(502).json({ erro: 'Falha ao consultar serviço de previsão do tempo' });
-  }
-});
 
 
-app.get('/api', async (req, res) => {
-    const id = req.query?.id ?? '';
-    const url = `https://api.jikan.moe/v4/anime/${id}`;
 
-    try {
-        const resposta = await fetch(url);
-        const dados = await resposta.json();
-        const dados_para_retornar = {
-            titulo : dados.data.title ,
-            duracao : dados.data.duration,
-            resumo: dados.data.synopsis
-        }
-        res.status(200).json(dados_para_retornar);
-    }catch (erro){
-        res.status(502).json({ erro: 'Falha ao consultar serviço de anime' });
-    }
-});
-
-export default app;
+export default app

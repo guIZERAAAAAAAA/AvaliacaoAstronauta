@@ -1,11 +1,14 @@
-import swaggerJsdoc from "swagger-jsdoc";
+import swaggerJSDoc from "swagger-jsdoc"
+
 
 const opcoes = {
-  definition: {
-    openapi: "3.0.0",
-    info: { title: "API da nasa ", version: "1.0.0" },
-  },
-  apis: ["./app.js"],
+    definition:{
+        openani:"3.0.0",
+        info: {title: "API  de missoes espaciais", version : "1.0.0"}
+    },
+    apis:["./app.js"],
 };
 
-export default swaggerJsdoc(opcoes);
+
+
+export default swaggerJSDoc(opcoes);
